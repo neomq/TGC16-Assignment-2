@@ -24,8 +24,24 @@ async function main(){
     // connect to mongodb
     await connect(process.env.MONGO_URI, "diy_home_decor")
 
-    // Read 
-    app.get('/diy_project', async function (req, res) {
+    // get all projects
+    app.get('/projects', async function (req, res) {
+        try {
+            const db = getDB();
+            let projects = await db.collection('projects').find().toArray();
+
+            res.status(200);
+            res.send(projects);
+        } catch (e) {
+            res.status(500);
+            res.send({
+                'error': "error"
+            })
+        }
+    })
+
+    // get projects by search
+    app.get('/projects/search', async function (req, res) {
 
         try { 
             let criteria = {};
@@ -93,13 +109,13 @@ async function main(){
         }
     })
 
-    // create post
-    app.post('/diy_project', async function (req, res) {
+    // post new project
+    app.post('/projects', async function (req, res) {
 
         try {
             let project_title = req.body.project_title;
             let user_name = req.body.user_name;
-            let date_of_post = new Date(req.body.date_of_post);
+            // let date_of_post = new Date(req.body.date_of_post);
             let photo = req.body.photo;
             let description = req.body.description;
             let tags = req.body.tags.split(',');
@@ -112,7 +128,18 @@ async function main(){
 
             const db = getDB();
             db.collection('projects').insertOne({
-                project_title, user_name, date_of_post, photo, description, tags, supplies, craft_type, category, time_required, difficulty, instructions
+                project_title,
+                user_name,
+                date_of_post: new Date(),
+                photo,
+                description,
+                tags,
+                supplies,
+                craft_type,
+                category,
+                time_required,
+                difficulty,
+                instructions
             });
             res.status(200);
             res.json({
@@ -128,8 +155,8 @@ async function main(){
         
     })
 
-    // update post
-    app.put('/diy_project/:id', async function (req,res) {
+    // update project
+    app.put('/projects/:id', async function (req,res) {
 
         try {
             // let project_title = req.body.project_title;
@@ -155,8 +182,9 @@ async function main(){
             supplies = supplies.split(',');
             craft_type = craft_type.split(',');
             category = category.split(',');
-
-            let results = await getDB().collection('projects').updateOne({
+            
+            const db = getDB();
+            let results = await db.collection('projects').updateOne({
                 '_id': ObjectId(req.params.id)
             }, {
                 '$set': {
@@ -179,15 +207,156 @@ async function main(){
 
     })
 
-    // delete post
-    app.delete('/diy_project/:id', async function (req, res) {
-        await getDB().collection('projects').deleteOne({
-            '_id': ObjectId(req.params.id)
-        })
-        res.status(200);
-        res.json({
-            'message':'deleted'
-        })
+    // delete project
+    app.delete('/projects/:id', async function (req, res) {
+
+        try {
+            const db = getDB();
+            await db.collection('projects').deleteOne({
+                '_id': ObjectId(req.params.id)
+            })
+            res.status(200);
+            res.json({
+                'message': 'deleted'
+            })
+        } catch (e) {
+            res.status(500);
+            res.json({
+                'message': 'unable to delete project'
+            })
+        }
+        
+    })
+
+    // -- comments -- //
+    // get all comments for each project
+    app.get('/projects/:id/comments', async function (req, res) {
+
+        try {
+            const db = getDB();
+            let results = await db.collection('projects').find({
+                "_id": ObjectId(req.params.id)
+            }).project({
+                'comments': 1
+            }).toArray()
+
+            res.status(200);
+            res.send(results)
+
+        } catch (e) {
+            res.status(500);
+            res.json({
+                "message": "unable to display comments"
+            })
+        }
+    })
+
+    // post comment
+    app.post('/projects/:id/comments', async function (req, res) {
+
+        try {
+            const db = getDB();
+            let comment_name = req.body.comment_name;
+            let comment_text = req.body.comment_text;
+            
+            let results = await db.collection('projects').updateOne({
+                '_id': ObjectId(req.params.id)
+            }, {
+                '$push': {
+                    'comments': {
+                        comment_name,
+                        comment_date: new Date(),
+                        comment_text
+                    }
+                }
+            })
+            res.status(200);
+            res.send(results)
+
+        } catch (e) {
+            res.status(500);
+            res.json({
+                "message": "unable to insert comment"
+            });
+            console.log(e)
+        }
+    })
+
+    // update comment
+    app.put('/projects/:id/comments/:comment_name', async function (req, res) {
+
+        try {
+            const db = getDB();
+            let { comment_name, comment_text } = req.body
+
+            let results = await db.collection('projects').updateOne({
+                'comments': {
+                    '$elemMatch': {
+                        'comment_name': req.params.comment_name
+                    }
+                }
+            }, {
+                '$set': {
+                    'comments.$.comment_date': new Date(),
+                    'comments.$.comment_name': comment_name,
+                    'comments.$.comment_text': comment_text
+                }
+            })
+            res.status(200);
+            res.json({
+                'message': 'comments updated'
+            })
+        } catch (e) {
+            res.status(500);
+            res.json({
+                'message': 'unable to update comment'
+            });
+            console.log(e)
+        }
+    })
+
+    // delete comment
+    app.delete('/projects/:id/comments/:comment_name', async function (req, res) {
+
+        try {
+            const db = getDB();
+            let project = await db.collection('projects').findOne({
+                '_id': ObjectId(req.params.id)
+            })
+
+            if (project) {
+                let clone = []
+                if (project.comments.length > 1) {
+                    console.log(project.comments)
+                    let oldComment = project.comments;
+                    let indexToDelete = oldComment.findIndex((s) => {
+                        return s.comment_name == req.params.comment_name;
+                    });
+
+                    clone = [
+                        ...oldComment.slice(0, indexToDelete),
+                        ...oldComment.slice(indexToDelete + 1)
+                    ];
+                }
+                await db.collection('projects').updateOne({
+                    '_id': ObjectId(req.params.id)
+                }, {
+                    $set: {
+                        "comments": clone
+                    }
+                })
+                res.status(200)
+                res.json({
+                    'message': 'deleted'
+                });
+            }
+        } catch (e) {
+            res.status(500);
+            res.json({
+                'message': 'unable to delete comment'
+            });
+            console.log(e)
+        }
     })
 
 }

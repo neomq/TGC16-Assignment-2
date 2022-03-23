@@ -84,6 +84,27 @@ async function main(){
                 }
             }
 
+            if (req.query.time_required) {
+                if (req.query.time_required == "less than 30 mins"){
+                    criteria['time_required'] = {
+                        '$lt': 30
+                    }
+                }
+
+                if (req.query.time_required == "30 mins - 60 mins"){
+                    criteria['time_required'] = {
+                        '$gte': 30,
+                        '$lte': 60
+                    }
+                }
+
+                if (req.query.time_required == "more than 60 mins"){
+                    criteria['time_required'] = {
+                        '$gt': 60
+                    }
+                }
+            }
+
             console.log(criteria);
 
             const db = getDB();

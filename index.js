@@ -35,7 +35,7 @@ async function main(){
         } catch (e) {
             res.status(500);
             res.send({
-                'error': "error"
+                "message": "unable to display projects"
             })
         }
     })
@@ -46,6 +46,7 @@ async function main(){
         try { 
             let criteria = {};
 
+            // search by title
             if (req.query.project_title) {
                 criteria['project_title'] = {
                     '$regex': req.query.project_title,
@@ -53,6 +54,7 @@ async function main(){
                 }
             }
 
+            // search by description
             if (req.query.description) {
                 criteria['description'] = {
                     '$regex': req.query.description,
@@ -60,30 +62,36 @@ async function main(){
                 }
             }
 
+            // search by tags
             if (req.query.tags) {
                 criteria['tags'] = {
                     '$in': [req.query.tags]
                 }
             }
 
+            // search by supplies
             if (req.query.supplies) {
+                re = new RegExp(req.query.supplies, 'i')
                 criteria['supplies'] = {
-                    '$in': [req.query.supplies]
+                    '$in': [re]
                 }
             }
 
+            // filter by craft_type
             if (req.query.craft_type) {
                 criteria['craft_type'] = {
                     '$in': [req.query.craft_type]
                 }
             }
 
+            // filter by category
             if (req.query.category) {
                 criteria['category'] = {
                     '$in': [req.query.category]
                 }
             }
 
+            // filter by time required
             if (req.query.time_required) {
                 if (req.query.time_required == "less than 30 mins"){
                     criteria['time_required'] = {
@@ -105,6 +113,13 @@ async function main(){
                 }
             }
 
+            // filter by difficulty
+            if (req.query.difficulty) {
+                criteria['difficulty'] = {
+                    '$regex': req.query.difficulty
+                }
+            }
+
             console.log(criteria);
 
             const db = getDB();
@@ -114,18 +129,25 @@ async function main(){
                         'project_title': 1,
                         'user_name': 1,
                         'date_of_post': 1,
-                        'photo': 1
+                        'photo': 1,
+                        'description': 1,
+                        'tags': 1,
+                        'supplies': 1,
+                        'craft_type': 1,
+                        'category': 1,
+                        'time_required': 1,
+                        'difficulty': 1,
+                        'instructions': 1,
+                        'comments': 1
                     }
                 })
                 .toArray();
-            res.json({
-                'results': results
-            })
-
+            res.status(200);
+            res.send(results)
         } catch (e) {
             res.status(500);
             res.send({
-                'error': "error"
+                "message": "unable to display search results"
             })
         }
     })
@@ -136,7 +158,6 @@ async function main(){
         try {
             let project_title = req.body.project_title;
             let user_name = req.body.user_name;
-            // let date_of_post = new Date(req.body.date_of_post);
             let photo = req.body.photo;
             let description = req.body.description;
             let tags = req.body.tags.split(',');
@@ -145,7 +166,10 @@ async function main(){
             let category = req.body.category;
             let time_required = req.body.time_required;
             let difficulty = req.body.difficulty;
-            let instructions = req.body.instructions;
+
+            let text = req.body.instructions.text;
+            let link = req.body.instructions.link;
+            let instructions = { text, link };
 
             const db = getDB();
             db.collection('projects').insertOne({
@@ -164,16 +188,15 @@ async function main(){
             });
             res.status(200);
             res.json({
-                'message': 'added'
+                "message": "success"
             });
         } catch (e) {
             res.status(500);
             res.json({
-                'message': 'internal server error. Please contact administrator'
+                "message": "unable to submit project"
             })
             console.log(e)
         }
-        
     })
 
     // update project
@@ -191,35 +214,55 @@ async function main(){
             // let category = req.body.category;
             // let time_required = req.body.time_required;
             // let difficulty = req.body.difficulty;
-            // let instructions = req.body.instructions;
 
-            let { project_title, user_name,
-                date_of_post, photo, description,
-                tags, supplies, craft_type, category,
-                time_required, difficulty, instructions } = req.body;
+            let {
+                project_title,
+                user_name,
+                photo,
+                description,
+                tags,
+                supplies,
+                craft_type,
+                category,
+                time_required,
+                difficulty } = req.body;
+            
+            let text = req.body.instructions.text;
+            let link = req.body.instructions.link;
+            let instructions = { text, link };
 
-            date_of_post = new Date(date_of_post);
             tags = tags.split(',');
             supplies = supplies.split(',');
-            craft_type = craft_type.split(',');
-            category = category.split(',');
+            craft_type = craft_type;
+            category = category;
             
             const db = getDB();
             let results = await db.collection('projects').updateOne({
                 '_id': ObjectId(req.params.id)
             }, {
                 '$set': {
-                    project_title, user_name, date_of_post, photo, description, tags, supplies, craft_type, category, time_required, difficulty, instructions
+                    project_title,
+                    user_name,
+                    date_of_post :new Date(),
+                    photo,
+                    description,
+                    tags,
+                    supplies,
+                    craft_type,
+                    category,
+                    time_required,
+                    difficulty,
+                    instructions
                 }
             })
             res.status(200);
             res.json({
-                'message': 'updated'
+                "message": "project updated successfully"
             })
         } catch (e) {
             res.status(500);
             res.json({
-                'message': 'internal server error. Please contact administrator'
+                "message": "unable to update project"
             });
             console.log(e);
         }
@@ -238,12 +281,12 @@ async function main(){
             })
             res.status(200);
             res.json({
-                'message': 'deleted'
+                "message": "project deleted successfully"
             })
         } catch (e) {
             res.status(500);
             res.json({
-                'message': 'unable to delete project'
+                "message": "unable to delete project"
             })
         }
         
@@ -263,7 +306,6 @@ async function main(){
 
             res.status(200);
             res.send(results)
-
         } catch (e) {
             res.status(500);
             res.json({
@@ -280,7 +322,7 @@ async function main(){
             let comment_name = req.body.comment_name;
             let comment_text = req.body.comment_text;
             
-            let results = await db.collection('projects').updateOne({
+            await db.collection('projects').updateOne({
                 '_id': ObjectId(req.params.id)
             }, {
                 '$push': {
@@ -292,8 +334,9 @@ async function main(){
                 }
             })
             res.status(200);
-            res.send(results)
-
+            res.json({
+                'message': 'comments added successfully'
+            })
         } catch (e) {
             res.status(500);
             res.json({
@@ -304,16 +347,16 @@ async function main(){
     })
 
     // update comment
-    app.put('/projects/:id/comments/:comment_name', async function (req, res) {
+    app.put('/projects/:id/comments/:comment_id', async function (req, res) {
 
         try {
             const db = getDB();
             let { comment_name, comment_text } = req.body
 
-            let results = await db.collection('projects').updateOne({
+            await db.collection('projects').updateOne({
                 'comments': {
                     '$elemMatch': {
-                        'comment_name': req.params.comment_name
+                        'comment_id': ObjectId(req.params.comment_id)
                     }
                 }
             }, {
@@ -325,7 +368,7 @@ async function main(){
             })
             res.status(200);
             res.json({
-                'message': 'comments updated'
+                'message': 'comments updated successfully'
             })
         } catch (e) {
             res.status(500);
@@ -337,7 +380,7 @@ async function main(){
     })
 
     // delete comment
-    app.delete('/projects/:id/comments/:comment_name', async function (req, res) {
+    app.delete('/projects/:id/comments/:comment_id', async function (req, res) {
 
         try {
             const db = getDB();
@@ -346,19 +389,14 @@ async function main(){
             })
 
             if (project) {
-                let clone = []
-                if (project.comments.length > 1) {
-                    console.log(project.comments)
-                    let oldComment = project.comments;
-                    let indexToDelete = oldComment.findIndex((s) => {
-                        return s.comment_name == req.params.comment_name;
-                    });
+                let indexToRemove = project.comments.findIndex((i) => {
+                    return i.comment_id == req.params.comment_id;
+                });
 
-                    clone = [
-                        ...oldComment.slice(0, indexToDelete),
-                        ...oldComment.slice(indexToDelete + 1)
-                    ];
-                }
+                let clone = [
+                    ...project.comments.slice(0, indexToRemove),
+                    ...project.comments.slice(indexToRemove + 1)
+                ];
                 await db.collection('projects').updateOne({
                     '_id': ObjectId(req.params.id)
                 }, {
@@ -368,7 +406,7 @@ async function main(){
                 })
                 res.status(200)
                 res.json({
-                    'message': 'deleted'
+                    'message': 'comment deleted successfully'
                 });
             }
         } catch (e) {
@@ -384,6 +422,10 @@ async function main(){
 main();
 
 // Listen
-app.listen(process.env.PORT, function(){
-    console.log("Server has started")
-})
+// app.listen(process.env.PORT, function(){
+//     console.log("Server has started")
+// })
+
+// app.listen(3000, function(){
+//     console.log("Server has started")
+// })

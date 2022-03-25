@@ -327,6 +327,7 @@ async function main(){
             }, {
                 '$push': {
                     'comments': {
+                        comment_id: new ObjectId(),
                         comment_name,
                         comment_date: new Date(),
                         comment_text
@@ -422,9 +423,9 @@ async function main(){
 main();
 
 // Listen
-// app.listen(process.env.PORT, function(){
-//     console.log("Server has started")
-// })
+app.listen(process.env.PORT, function(){
+    console.log("Server has started")
+})
 
 // app.listen(3000, function(){
 //     console.log("Server has started")

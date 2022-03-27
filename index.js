@@ -44,49 +44,51 @@ async function main(){
     app.get('/projects/search', async function (req, res) {
 
         try { 
-            let criteria = {};
+
+            // search by project_title or description
+            let criteria_1 = {} // project_title
+            let criteria_2 = {} // description
+
+            // filter by craft_type, category, time and difficulty
+            let criteria_3 = {}
+            
+            if (req.query.search_word) {
+                criteria_1['project_title'] = {
+                    '$regex': req.query.search_word,
+                    '$options': 'i'
+                }
+                criteria_2['description'] = {
+                    '$regex': req.query.search_word,
+                    '$options': 'i'
+                }
+            }
 
             // search by title
-            if (req.query.project_title) {
-                criteria['project_title'] = {
-                    '$regex': req.query.project_title,
-                    '$options': 'i'
-                }
-            }
+            // if (req.query.project_title) {
+            //     criteria['project_title'] = {
+            //         '$regex': req.query.project_title,
+            //         '$options': 'i'
+            //     }
+            // }
 
             // search by description
-            if (req.query.description) {
-                criteria['description'] = {
-                    '$regex': req.query.description,
-                    '$options': 'i'
-                }
-            }
-
-            // search by tags
-            if (req.query.tags) {
-                criteria['tags'] = {
-                    '$in': [req.query.tags]
-                }
-            }
-
-            // search by supplies
-            if (req.query.supplies) {
-                re = new RegExp(req.query.supplies, 'i')
-                criteria['supplies'] = {
-                    '$in': [re]
-                }
-            }
+            // if (req.query.description) {
+            //     criteria['description'] = {
+            //         '$regex': req.query.description,
+            //         '$options': 'i'
+            //     }
+            // }
 
             // filter by craft_type
             if (req.query.craft_type) {
-                criteria['craft_type'] = {
+                criteria_3['craft_type'] = {
                     '$in': [req.query.craft_type]
                 }
             }
 
             // filter by category
             if (req.query.category) {
-                criteria['category'] = {
+                criteria_3['category'] = {
                     '$in': [req.query.category]
                 }
             }
@@ -94,20 +96,20 @@ async function main(){
             // filter by time required
             if (req.query.time_required) {
                 if (req.query.time_required == "less than 30 mins"){
-                    criteria['time_required'] = {
+                    criteria_3['time_required'] = {
                         '$lt': 30
                     }
                 }
 
                 if (req.query.time_required == "30 mins - 60 mins"){
-                    criteria['time_required'] = {
+                    criteria_3['time_required'] = {
                         '$gte': 30,
                         '$lte': 60
                     }
                 }
 
                 if (req.query.time_required == "more than 60 mins"){
-                    criteria['time_required'] = {
+                    criteria_3['time_required'] = {
                         '$gt': 60
                     }
                 }
@@ -115,16 +117,22 @@ async function main(){
 
             // filter by difficulty
             if (req.query.difficulty) {
-                criteria['difficulty'] = {
+                criteria_3['difficulty'] = {
                     '$regex': req.query.difficulty
                 }
             }
 
-            console.log(criteria);
+            console.log(criteria_1);
+            console.log(criteria_2);
+            console.log(criteria_3);
 
             const db = getDB();
             let results = await db.collection('projects')
-                .find(criteria, {
+                .find({
+                    '$or': [criteria_1, criteria_2],
+                    '$and': [criteria_3]
+                },
+                {
                     'projection': {
                         'project_title': 1,
                         'user_name': 1,
@@ -423,10 +431,10 @@ async function main(){
 main();
 
 // Listen
-app.listen(process.env.PORT, function(){
-    console.log("Server has started")
-})
-
-// app.listen(3000, function(){
+// app.listen(process.env.PORT, function(){
 //     console.log("Server has started")
 // })
+
+app.listen(3000, function(){
+    console.log("Server has started")
+})

@@ -168,7 +168,7 @@ async function main(){
             let user_name = req.body.user_name;
             let photo = req.body.photo;
             let description = req.body.description;
-            let tags = req.body.tags.split(',');
+            // let tags = req.body.tags.split(',');
             let supplies = req.body.supplies.split(',');
             let craft_type = req.body.craft_type;
             let category = req.body.category;
@@ -186,7 +186,7 @@ async function main(){
                 date_of_post: new Date(),
                 photo,
                 description,
-                tags,
+                //tags,
                 supplies,
                 craft_type,
                 category,
@@ -228,7 +228,7 @@ async function main(){
                 user_name,
                 photo,
                 description,
-                tags,
+                //tags,
                 supplies,
                 craft_type,
                 category,
@@ -239,7 +239,7 @@ async function main(){
             let link = req.body.instructions.link;
             let instructions = { text, link };
 
-            tags = tags.split(',');
+            //tags = tags.split(',');
             supplies = supplies.split(',');
             craft_type = craft_type;
             category = category;
@@ -254,7 +254,7 @@ async function main(){
                     date_of_post :new Date(),
                     photo,
                     description,
-                    tags,
+                    //tags,
                     supplies,
                     craft_type,
                     category,

@@ -160,6 +160,38 @@ async function main(){
         }
     })
 
+    // get categories
+    app.get('/category_list', async function (req, res) {
+        try {
+            const db = getDB();
+            let categories = await db.collection('category_list').find().toArray();
+
+            res.status(200);
+            res.send(categories);
+        } catch (e) {
+            res.status(500);
+            res.send({
+                "message": "unable to get categories"
+            })
+        }
+    })
+
+    // get craft types
+    app.get('/craft_type_list', async function (req, res) {
+        try {
+            const db = getDB();
+            let craft_types = await db.collection('craft_type_list').find().toArray();
+
+            res.status(200);
+            res.send(craft_types);
+        } catch (e) {
+            res.status(500);
+            res.send({
+                "message": "unable to get craft types"
+            })
+        }
+    })
+
     // post new project
     app.post('/projects', async function (req, res) {
 

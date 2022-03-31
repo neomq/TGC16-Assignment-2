@@ -204,11 +204,19 @@ async function main(){
             let supplies = req.body.supplies.split(',');
             let craft_type = req.body.craft_type;
             let category = req.body.category;
-            let time_required = req.body.time_required;
+            let time_required = parseInt(req.body.time_required);
             let difficulty = req.body.difficulty;
+            let text = req.body.text.split(',');
+            let link = req.body.link;
+            
+            // remove all whitespaces from the front and back
+            supplies = supplies.map(function(each_supply){
+                return each_supply.trim();
+            })
+            text = text.map(function(each_content){
+                return each_content.trim();
+            })
 
-            let text = req.body.instructions.text;
-            let link = req.body.instructions.link;
             let instructions = { text, link };
 
             const db = getDB();
@@ -265,17 +273,28 @@ async function main(){
                 craft_type,
                 category,
                 time_required,
-                difficulty } = req.body;
+                difficulty,
+                text,
+                link } = req.body;
             
-            let text = req.body.instructions.text;
-            let link = req.body.instructions.link;
-            let instructions = { text, link };
+            // let text = req.body.text.split(',');
+            // let link = req.body.link;
 
             //tags = tags.split(',');
             supplies = supplies.split(',');
-            craft_type = craft_type;
-            category = category;
-            
+            text = text.split(',');
+            time_required = parseInt(time_required);
+
+            // remove all whitespaces from the front and back
+            supplies = supplies.map(function(each_supply){
+                return each_supply.trim();
+            })
+            text = text.map(function(each_content){
+                return each_content.trim();
+            })
+
+            let instructions = { text, link };
+
             const db = getDB();
             let results = await db.collection('projects').updateOne({
                 '_id': ObjectId(req.params.id)
@@ -306,9 +325,6 @@ async function main(){
             });
             console.log(e);
         }
-
-        
-
     })
 
     // delete project

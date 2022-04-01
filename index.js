@@ -63,22 +63,6 @@ async function main(){
                 }
             }
 
-            // search by title
-            // if (req.query.project_title) {
-            //     criteria['project_title'] = {
-            //         '$regex': req.query.project_title,
-            //         '$options': 'i'
-            //     }
-            // }
-
-            // search by description
-            // if (req.query.description) {
-            //     criteria['description'] = {
-            //         '$regex': req.query.description,
-            //         '$options': 'i'
-            //     }
-            // }
-
             // filter by craft_type
             if (req.query.craft_type) {
                 criteria_3['craft_type'] = {
@@ -196,48 +180,101 @@ async function main(){
     app.post('/projects', async function (req, res) {
 
         try {
+            // 1. get info from req.body - done
+            // 2. validate info from req.body, e.g. required, minLength
+            // 3. set a variable to count number of invalid fields
+            // 4. if else statement:
+            //  a. if errorCount > 0 --> sendStatus(406)
+            //  b. else --> sendStatus(200)
             let project_title = req.body.project_title;
             let user_name = req.body.user_name;
             let photo = req.body.photo;
             let description = req.body.description;
             // let tags = req.body.tags.split(',');
-            let supplies = req.body.supplies.split(',');
+            // let supplies = req.body.supplies.split(',');
+            let supplies = req.body.supplies;
             let craft_type = req.body.craft_type;
             let category = req.body.category;
             let time_required = parseInt(req.body.time_required);
             let difficulty = req.body.difficulty;
-            let text = req.body.text.split(',');
+            // let text = req.body.text.split(',');
+            let text = req.body.text;
             let link = req.body.link;
-            
-            // remove all whitespaces from the front and back
-            supplies = supplies.map(function(each_supply){
-                return each_supply.trim();
-            })
-            text = text.map(function(each_content){
-                return each_content.trim();
-            })
 
-            let instructions = { text, link };
+            // validation
+            let errorCount = 0;
 
-            const db = getDB();
-            db.collection('projects').insertOne({
-                project_title,
-                user_name,
-                date_of_post: new Date(),
-                photo,
-                description,
-                //tags,
-                supplies,
-                craft_type,
-                category,
-                time_required,
-                difficulty,
-                instructions
-            });
-            res.status(200);
-            res.json({
-                "message": "success"
-            });
+            if (project_title.length < 3) {
+                errorCount += 1;
+            }
+            if (user_name.length < 2){
+                errorCount += 1;
+            }
+            if (!photo) {
+                errorCount += 1;
+            }
+            if (description.length < 5){
+                errorCount += 1;
+            }
+            if (supplies.length < 2){
+                errorCount += 1;
+            }
+            if (!craft_type) {
+                errorCount += 1;
+            }
+            if (!category) {
+                errorCount += 1;
+            }
+            if (parseInt(time_required) < 1){
+                errorCount += 1;
+            }
+            if (!difficulty){
+                errorCount += 1;
+            }
+            if (text.length < 5){
+                errorCount += 1;
+            }
+
+            if (errorCount > 0){
+                res.status(406)
+                res.json({
+                    "message": "error"
+                })
+            } else {
+                // split into array
+                supplies = supplies.split(',');
+                text = text.split(',');
+
+                // remove all whitespaces from the front and back
+                supplies = supplies.map(function (each_supply) {
+                    return each_supply.trim();
+                })
+                text = text.map(function (each_content) {
+                    return each_content.trim();
+                })
+
+                let instructions = { text, link };
+
+                const db = getDB();
+                db.collection('projects').insertOne({
+                    project_title,
+                    user_name,
+                    date_of_post: new Date(),
+                    photo,
+                    description,
+                    //tags,
+                    supplies,
+                    craft_type,
+                    category,
+                    time_required,
+                    difficulty,
+                    instructions
+                });
+                res.status(200);
+                res.json({
+                    "message": "success"
+                });
+            }
         } catch (e) {
             res.status(500);
             res.json({
@@ -253,7 +290,6 @@ async function main(){
         try {
             // let project_title = req.body.project_title;
             // let user_name = req.body.user_name;
-            // let date_of_post = req.body.date_of_post;
             // let photo = req.body.photo;
             // let description = req.body.description;
             // let tags = req.body.tags;
@@ -262,6 +298,8 @@ async function main(){
             // let category = req.body.category;
             // let time_required = req.body.time_required;
             // let difficulty = req.body.difficulty;
+            // let text = req.body.text;
+            // let link = req.body.link;
 
             let {
                 project_title,
@@ -277,47 +315,85 @@ async function main(){
                 text,
                 link } = req.body;
             
-            // let text = req.body.text.split(',');
-            // let link = req.body.link;
+            // validation
+            let errorCount = 0;
 
-            //tags = tags.split(',');
-            supplies = supplies.split(',');
-            text = text.split(',');
-            time_required = parseInt(time_required);
+            if (project_title.length < 3) {
+                errorCount += 1;
+            }
+            if (user_name.length < 2){
+                errorCount += 1;
+            }
+            if (!photo) {
+                errorCount += 1;
+            }
+            if (description.length < 5){
+                errorCount += 1;
+            }
+            if (supplies.length < 2){
+                errorCount += 1;
+            }
+            if (!craft_type) {
+                errorCount += 1;
+            }
+            if (!category) {
+                errorCount += 1;
+            }
+            if (parseInt(time_required) < 1){
+                errorCount += 1;
+            }
+            if (!difficulty){
+                errorCount += 1;
+            }
+            if (text.length < 5){
+                errorCount += 1;
+            }
 
-            // remove all whitespaces from the front and back
-            supplies = supplies.map(function(each_supply){
-                return each_supply.trim();
-            })
-            text = text.map(function(each_content){
-                return each_content.trim();
-            })
+            if (errorCount > 0){
+                res.status(406)
+                res.json({
+                    "message": "error"
+                })
+            } else {
+                //tags = tags.split(',');
+                supplies = supplies.split(',');
+                text = text.split(',');
+                time_required = parseInt(time_required);
 
-            let instructions = { text, link };
+                // remove all whitespaces from the front and back
+                supplies = supplies.map(function (each_supply) {
+                    return each_supply.trim();
+                })
+                text = text.map(function (each_content) {
+                    return each_content.trim();
+                })
 
-            const db = getDB();
-            let results = await db.collection('projects').updateOne({
-                '_id': ObjectId(req.params.id)
-            }, {
-                '$set': {
-                    project_title,
-                    user_name,
-                    date_of_post :new Date(),
-                    photo,
-                    description,
-                    //tags,
-                    supplies,
-                    craft_type,
-                    category,
-                    time_required,
-                    difficulty,
-                    instructions
-                }
-            })
-            res.status(200);
-            res.json({
-                "message": "project updated successfully"
-            })
+                let instructions = { text, link };
+
+                const db = getDB();
+                let results = await db.collection('projects').updateOne({
+                    '_id': ObjectId(req.params.id)
+                }, {
+                    '$set': {
+                        project_title,
+                        user_name,
+                        date_of_post: new Date(),
+                        photo,
+                        description,
+                        //tags,
+                        supplies,
+                        craft_type,
+                        category,
+                        time_required,
+                        difficulty,
+                        instructions
+                    }
+                })
+                res.status(200);
+                res.json({
+                    "message": "project updated successfully"
+                })
+            }
         } catch (e) {
             res.status(500);
             res.json({
@@ -375,25 +451,43 @@ async function main(){
 
         try {
             const db = getDB();
-            let comment_name = req.body.comment_name;
-            let comment_text = req.body.comment_text;
+            // let comment_name = req.body.comment_name;
+            // let comment_text = req.body.comment_text;
+            let { comment_name, comment_text } = req.body
+
+            // validation
+            let errorCount = 0;
             
-            await db.collection('projects').updateOne({
-                '_id': ObjectId(req.params.id)
-            }, {
-                '$push': {
-                    'comments': {
-                        comment_id: new ObjectId(),
-                        comment_name,
-                        comment_date: new Date(),
-                        comment_text
+            if (comment_name.length < 2){
+                errorCount += 1;
+            }
+            if (comment_text.length < 2){
+                errorCount += 1;
+            }
+            
+            if (errorCount > 0){
+                res.status(406)
+                res.json({
+                    "message": "error"
+                })
+            } else {
+                await db.collection('projects').updateOne({
+                    '_id': ObjectId(req.params.id)
+                }, {
+                    '$push': {
+                        'comments': {
+                            comment_id: new ObjectId(),
+                            comment_name,
+                            comment_date: new Date(),
+                            comment_text
+                        }
                     }
-                }
-            })
-            res.status(200);
-            res.json({
-                'message': 'comments added successfully'
-            })
+                })
+                res.status(200);
+                res.json({
+                    'message': 'comments added successfully'
+                })
+            }
         } catch (e) {
             res.status(500);
             res.json({
@@ -410,23 +504,40 @@ async function main(){
             const db = getDB();
             let { comment_name, comment_text } = req.body
 
-            await db.collection('projects').updateOne({
-                'comments': {
-                    '$elemMatch': {
-                        'comment_id': ObjectId(req.params.comment_id)
+            // validation
+            let errorCount = 0;
+            
+            if (comment_name.length < 2){
+                errorCount += 1;
+            }
+            if (comment_text.length < 2){
+                errorCount += 1;
+            }
+
+            if (errorCount > 0){
+                res.status(406)
+                res.json({
+                    "message": "error"
+                })
+            } else {
+                await db.collection('projects').updateOne({
+                    'comments': {
+                        '$elemMatch': {
+                            'comment_id': ObjectId(req.params.comment_id)
+                        }
                     }
-                }
-            }, {
-                '$set': {
-                    'comments.$.comment_date': new Date(),
-                    'comments.$.comment_name': comment_name,
-                    'comments.$.comment_text': comment_text
-                }
-            })
-            res.status(200);
-            res.json({
-                'message': 'comments updated successfully'
-            })
+                }, {
+                    '$set': {
+                        'comments.$.comment_date': new Date(),
+                        'comments.$.comment_name': comment_name,
+                        'comments.$.comment_text': comment_text
+                    }
+                })
+                res.status(200);
+                res.json({
+                    'message': 'comments updated successfully'
+                })
+            }
         } catch (e) {
             res.status(500);
             res.json({

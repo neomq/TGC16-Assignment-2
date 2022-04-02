@@ -40,6 +40,24 @@ async function main(){
         }
     })
 
+    // get each project
+    app.get('/projects/:id', async function (req, res) {
+        try {
+            const db = getDB();
+            let each_project = await db.collection('projects').find({
+                '_id': ObjectId(req.params.id)
+            }).toArray();
+
+            res.status(200);
+            res.send(each_project);
+        } catch (e) {
+            res.status(500);
+            res.send({
+                "message": "unable to display project"
+            })
+        }
+    })
+    
     // get projects by search
     app.get('/projects/search', async function (req, res) {
 
@@ -235,6 +253,8 @@ async function main(){
                 errorCount += 1;
             }
 
+            errorCount = 0 // FOR TESTING ONLY
+
             if (errorCount > 0){
                 res.status(406)
                 res.json({
@@ -244,6 +264,8 @@ async function main(){
                 // split into array
                 supplies = supplies.split(',');
                 text = text.split(',');
+                category = category.split(',');
+                craft_type = craft_type.split(',');
 
                 // remove all whitespaces from the front and back
                 supplies = supplies.map(function (each_supply) {
@@ -270,6 +292,7 @@ async function main(){
                     difficulty,
                     instructions
                 });
+                console.log("Data inserted")
                 res.status(200);
                 res.json({
                     "message": "success"
@@ -355,9 +378,13 @@ async function main(){
                     "message": "error"
                 })
             } else {
+                // split into array
                 //tags = tags.split(',');
                 supplies = supplies.split(',');
                 text = text.split(',');
+                category = category.split(',');
+                craft_type = craft_type.split(',');
+
                 time_required = parseInt(time_required);
 
                 // remove all whitespaces from the front and back

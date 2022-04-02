@@ -40,26 +40,26 @@ async function main(){
         }
     })
 
-    // get each project
+    // get one project
     app.get('/projects/:id', async function (req, res) {
         try {
             const db = getDB();
-            let each_project = await db.collection('projects').find({
+            let result = await db.collection('projects').find({
                 '_id': ObjectId(req.params.id)
             }).toArray();
 
             res.status(200);
-            res.send(each_project);
+            res.send(result);
         } catch (e) {
             res.status(500);
             res.send({
-                "message": "unable to display project"
+                "message": "unable to display selected project"
             })
         }
     })
     
     // get projects by search
-    app.get('/projects/search', async function (req, res) {
+    app.get('/projects_search', async function (req, res) {
 
         try { 
 
@@ -129,7 +129,7 @@ async function main(){
             console.log(criteria_3);
 
             const db = getDB();
-            let results = await db.collection('projects')
+            let search = await db.collection('projects')
                 .find({
                     '$or': [criteria_1, criteria_2],
                     '$and': [criteria_3]
@@ -153,7 +153,7 @@ async function main(){
                 })
                 .toArray();
             res.status(200);
-            res.send(results)
+            res.send(search)
         } catch (e) {
             res.status(500);
             res.send({

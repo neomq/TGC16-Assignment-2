@@ -249,7 +249,7 @@ async function main(){
             if (!difficulty){
                 errorCount += 1;
             }
-            if (text.length < 5){
+            if (text.length < 1){
                 errorCount += 1;
             }
 
@@ -368,9 +368,11 @@ async function main(){
             if (!difficulty){
                 errorCount += 1;
             }
-            if (text.length < 5){
+            if (text.length < 1){
                 errorCount += 1;
             }
+
+            errorCount = 0 // FOR TESTING ONLY
 
             if (errorCount > 0){
                 res.status(406)

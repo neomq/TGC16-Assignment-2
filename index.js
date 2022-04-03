@@ -28,7 +28,9 @@ async function main(){
     app.get('/projects', async function (req, res) {
         try {
             const db = getDB();
-            let projects = await db.collection('projects').find().toArray();
+            let projects = await db.collection('projects').find().sort({
+                'date_of_post': -1
+            }).toArray();
 
             res.status(200);
             res.send(projects);
@@ -440,6 +442,7 @@ async function main(){
             await db.collection('projects').deleteOne({
                 '_id': ObjectId(req.params.id)
             })
+            console.log("Data deleted")
             res.status(200);
             res.json({
                 "message": "project deleted successfully"

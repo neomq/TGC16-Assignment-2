@@ -152,8 +152,9 @@ async function main(){
                         'instructions': 1,
                         'comments': 1
                     }
-                })
-                .toArray();
+                }).sort({
+                    'date_of_post': -1
+                }).toArray();
             res.status(200);
             res.send(search)
         } catch (e) {
@@ -264,8 +265,8 @@ async function main(){
                 })
             } else {
                 // split into array
-                supplies = supplies.split(',');
-                text = text.split(',');
+                // supplies = supplies.split(',');
+                // text = text.split(',');
                 category = category.split(',');
                 craft_type = craft_type.split(',');
 
@@ -383,9 +384,9 @@ async function main(){
                 })
             } else {
                 // split into array
-                //tags = tags.split(',');
-                supplies = supplies.split(',');
-                text = text.split(',');
+                // tags = tags.split(',');
+                // supplies = supplies.split(',');
+                // text = text.split(',');
                 category = category.split(',');
                 craft_type = craft_type.split(',');
 

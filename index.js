@@ -201,7 +201,7 @@ async function main(){
     app.post('/projects', async function (req, res) {
 
         try {
-            // 1. get info from req.body - done
+            // 1. get info from req.body
             // 2. validate info from req.body, e.g. required, minLength
             // 3. set a variable to count number of invalid fields
             // 4. if else statement:
@@ -222,64 +222,74 @@ async function main(){
             let text = req.body.text;
             let link = req.body.link;
 
+            // split into array
+            // supplies = supplies.split(',');
+            // text = text.split(',');
+            category = category.split(',');
+            craft_type = craft_type.split(',');
+
+            // remove all whitespaces from the front and back
+            supplies = supplies.map(function (each_supply) {
+                return each_supply.trim();
+            })
+            text = text.map(function (each_content) {
+                return each_content.trim();
+            })
+
+            let instructions = { text, link };
+
             // validation
             let errorCount = 0;
 
-            if (project_title.length < 3) {
+            if (!project_title || project_title.length < 3) {
                 errorCount += 1;
+                console.log("invalid project title")
             }
-            if (user_name.length < 2){
+            if (!user_name || user_name.length < 2){
                 errorCount += 1;
+                console.log("invalid user name")
             }
             if (!photo) {
                 errorCount += 1;
+                console.log("invalid photo")
             }
-            if (description.length < 5){
+            if (description.length < 5 || description.length > 125){
                 errorCount += 1;
+                console.log("invalid description")
             }
-            if (supplies.length < 2){
+            if (supplies.length === 0){
                 errorCount += 1;
+                console.log("invalid supplies")
             }
-            if (!craft_type) {
+            if (craft_type.length === 1 && craft_type[0] === '' || craft_type.length > 3) {
                 errorCount += 1;
+                console.log("invalid craft type")
             }
-            if (!category) {
+            if (category.length === 1 && category[0] === '' || category.length > 3) {
                 errorCount += 1;
+                console.log("invalid category")
             }
-            if (parseInt(time_required) < 1){
+            if (!time_required || parseInt(time_required) < 1){
                 errorCount += 1;
+                console.log("invalid time required")
             }
             if (!difficulty){
                 errorCount += 1;
+                console.log("invalid difficulty")
             }
-            if (text.length < 1){
+            if (text.length === 0){
                 errorCount += 1;
+                console.log("invalid text")
             }
 
-            errorCount = 0 // FOR TESTING ONLY
+            // errorCount = 0 // FOR TESTING ONLY
 
             if (errorCount > 0){
                 res.status(406)
                 res.json({
-                    "message": "error"
+                    "message": "Invalid submission"
                 })
             } else {
-                // split into array
-                // supplies = supplies.split(',');
-                // text = text.split(',');
-                category = category.split(',');
-                craft_type = craft_type.split(',');
-
-                // remove all whitespaces from the front and back
-                supplies = supplies.map(function (each_supply) {
-                    return each_supply.trim();
-                })
-                text = text.map(function (each_content) {
-                    return each_content.trim();
-                })
-
-                let instructions = { text, link };
-
                 const db = getDB();
                 db.collection('projects').insertOne({
                     project_title,
@@ -340,68 +350,78 @@ async function main(){
                 difficulty,
                 text,
                 link } = req.body;
-            
+
+            // split into array
+            // tags = tags.split(',');
+            // supplies = supplies.split(',');
+            // text = text.split(',');
+            category = category.split(',');
+            craft_type = craft_type.split(',');
+
+            time_required = parseInt(time_required);
+
+            // remove all whitespaces from the front and back
+            supplies = supplies.map(function (each_supply) {
+                return each_supply.trim();
+            })
+            text = text.map(function (each_content) {
+                return each_content.trim();
+            })
+
+            let instructions = { text, link };
+
             // validation
             let errorCount = 0;
 
-            if (project_title.length < 3) {
+            if (!project_title || project_title.length < 3) {
                 errorCount += 1;
+                console.log("invalid project title")
             }
-            if (user_name.length < 2){
+            if (!user_name || user_name.length < 2) {
                 errorCount += 1;
+                console.log("invalid user name")
             }
             if (!photo) {
                 errorCount += 1;
+                console.log("invalid photo")
             }
-            if (description.length < 5){
+            if (description.length < 5 || description.length > 125) {
                 errorCount += 1;
+                console.log("invalid description")
             }
-            if (supplies.length < 2){
+            if (supplies.length === 0) {
                 errorCount += 1;
+                console.log("invalid supplies")
             }
-            if (!craft_type) {
+            if (craft_type.length === 1 && craft_type[0] === '' || craft_type.length > 3) {
                 errorCount += 1;
+                console.log("invalid craft type")
             }
-            if (!category) {
+            if (category.length === 1 && category[0] === '' || category.length > 3) {
                 errorCount += 1;
+                console.log("invalid category")
             }
-            if (parseInt(time_required) < 1){
+            if (!time_required || parseInt(time_required) < 1) {
                 errorCount += 1;
+                console.log("invalid time required")
             }
-            if (!difficulty){
+            if (!difficulty) {
                 errorCount += 1;
+                console.log("invalid difficulty")
             }
-            if (text.length < 1){
+            if (text.length === 0) {
                 errorCount += 1;
+                console.log("invalid text")
             }
 
-            errorCount = 0 // FOR TESTING ONLY
+            // errorCount = 0 // FOR TESTING ONLY
 
             if (errorCount > 0){
                 res.status(406)
                 res.json({
-                    "message": "error"
+                    "message": "Invalid submission"
                 })
             } else {
-                // split into array
-                // tags = tags.split(',');
-                // supplies = supplies.split(',');
-                // text = text.split(',');
-                category = category.split(',');
-                craft_type = craft_type.split(',');
-
-                time_required = parseInt(time_required);
-
-                // remove all whitespaces from the front and back
-                supplies = supplies.map(function (each_supply) {
-                    return each_supply.trim();
-                })
-                text = text.map(function (each_content) {
-                    return each_content.trim();
-                })
-
-                let instructions = { text, link };
-
                 const db = getDB();
                 let results = await db.collection('projects').updateOne({
                     '_id': ObjectId(req.params.id)
@@ -491,17 +511,19 @@ async function main(){
             // validation
             let errorCount = 0;
             
-            if (comment_name.length < 2){
+            if (!comment_name || comment_name.length < 2){
                 errorCount += 1;
+                console.log("invalid name")
             }
-            if (comment_text.length < 2){
+            if (!comment_text || comment_text.length < 2){
                 errorCount += 1;
+                console.log("invalid comment")
             }
             
             if (errorCount > 0){
                 res.status(406)
                 res.json({
-                    "message": "error"
+                    "message": "invalid submission"
                 })
             } else {
                 await db.collection('projects').updateOne({
@@ -539,18 +561,20 @@ async function main(){
 
             // validation
             let errorCount = 0;
-            
-            if (comment_name.length < 2){
+
+            if (!comment_name || comment_name.length < 2) {
                 errorCount += 1;
+                console.log("invalid name")
             }
-            if (comment_text.length < 2){
+            if (!comment_text || comment_text.length < 2) {
                 errorCount += 1;
+                console.log("invalid comment")
             }
 
             if (errorCount > 0){
                 res.status(406)
                 res.json({
-                    "message": "error"
+                    "message": "invalid submission"
                 })
             } else {
                 await db.collection('projects').updateOne({
@@ -606,6 +630,7 @@ async function main(){
                     }
                 })
                 res.status(200)
+                console.log("comment deleted")
                 res.json({
                     'message': 'comment deleted successfully'
                 });

@@ -225,8 +225,8 @@ async function main(){
             // split into array
             // supplies = supplies.split(',');
             // text = text.split(',');
-            category = category.split(',');
-            craft_type = craft_type.split(',');
+            // category = category.split(',');
+            // craft_type = craft_type.split(',');
 
             // remove all whitespaces from the front and back
             supplies = supplies.map(function (each_supply) {
@@ -253,7 +253,7 @@ async function main(){
                 errorCount += 1;
                 console.log("invalid photo")
             }
-            if (description.length < 5 || description.length > 125){
+            if (description.length < 5 || description.length > 150){
                 errorCount += 1;
                 console.log("invalid description")
             }
@@ -261,15 +261,15 @@ async function main(){
                 errorCount += 1;
                 console.log("invalid supplies")
             }
-            if (craft_type.length === 1 && craft_type[0] === '' || craft_type.length > 3) {
+            if (craft_type.length === 0 || craft_type.length > 3) {
                 errorCount += 1;
                 console.log("invalid craft type")
             }
-            if (category.length === 1 && category[0] === '' || category.length > 3) {
+            if (category.length === 0 || category.length > 3) {
                 errorCount += 1;
                 console.log("invalid category")
             }
-            if (!time_required || parseInt(time_required) < 1){
+            if (!time_required || parseInt(time_required) < 1 || isNaN(time_required) === true){
                 errorCount += 1;
                 console.log("invalid time required")
             }
@@ -355,8 +355,8 @@ async function main(){
             // tags = tags.split(',');
             // supplies = supplies.split(',');
             // text = text.split(',');
-            category = category.split(',');
-            craft_type = craft_type.split(',');
+            // category = category.split(',');
+            // craft_type = craft_type.split(',');
 
             time_required = parseInt(time_required);
 
@@ -393,15 +393,15 @@ async function main(){
                 errorCount += 1;
                 console.log("invalid supplies")
             }
-            if (craft_type.length === 1 && craft_type[0] === '' || craft_type.length > 3) {
+            if (craft_type.length === 0 || craft_type.length > 3) {
                 errorCount += 1;
                 console.log("invalid craft type")
             }
-            if (category.length === 1 && category[0] === '' || category.length > 3) {
+            if (category.length === 0 || category.length > 3) {
                 errorCount += 1;
                 console.log("invalid category")
             }
-            if (!time_required || parseInt(time_required) < 1) {
+            if (!time_required || parseInt(time_required) < 1 || isNaN(time_required) === true) {
                 errorCount += 1;
                 console.log("invalid time required")
             }

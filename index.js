@@ -211,22 +211,13 @@ async function main(){
             let user_name = req.body.user_name;
             let photo = req.body.photo;
             let description = req.body.description;
-            // let tags = req.body.tags.split(',');
-            // let supplies = req.body.supplies.split(',');
             let supplies = req.body.supplies;
             let craft_type = req.body.craft_type;
             let category = req.body.category;
             let time_required = parseInt(req.body.time_required);
             let difficulty = req.body.difficulty;
-            // let text = req.body.text.split(',');
             let text = req.body.text;
             let link = req.body.link;
-
-            // split into array
-            // supplies = supplies.split(',');
-            // text = text.split(',');
-            // category = category.split(',');
-            // craft_type = craft_type.split(',');
 
             // remove all whitespaces from the front and back
             supplies = supplies.map(function (each_supply) {
@@ -269,7 +260,7 @@ async function main(){
                 errorCount += 1;
                 console.log("invalid category")
             }
-            if (!time_required || parseInt(time_required) < 1 || isNaN(time_required) === true){
+            if (!time_required || parseInt(time_required) <= 0 || isNaN(time_required) === true){
                 errorCount += 1;
                 console.log("invalid time required")
             }
@@ -351,13 +342,6 @@ async function main(){
                 text,
                 link } = req.body;
 
-            // split into array
-            // tags = tags.split(',');
-            // supplies = supplies.split(',');
-            // text = text.split(',');
-            // category = category.split(',');
-            // craft_type = craft_type.split(',');
-
             time_required = parseInt(time_required);
 
             // remove all whitespaces from the front and back
@@ -401,7 +385,7 @@ async function main(){
                 errorCount += 1;
                 console.log("invalid category")
             }
-            if (!time_required || parseInt(time_required) < 1 || isNaN(time_required) === true) {
+            if (!time_required || parseInt(time_required) <= 0 || isNaN(time_required) === true) {
                 errorCount += 1;
                 console.log("invalid time required")
             }
@@ -648,10 +632,10 @@ async function main(){
 main();
 
 // Listen
-// app.listen(process.env.PORT, function(){
-//     console.log("Server has started")
-// })
-
-app.listen(3000, function(){
+app.listen(process.env.PORT, function(){
     console.log("Server has started")
 })
+
+// app.listen(3000, function(){
+//     console.log("Server has started")
+// })

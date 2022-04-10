@@ -632,10 +632,10 @@ async function main(){
 main();
 
 // Listen
-// app.listen(process.env.PORT, function(){
-//     console.log("Server has started")
-// })
-
-app.listen(3000, function(){
+app.listen(process.env.PORT, function(){
     console.log("Server has started")
 })
+
+// app.listen(3000, function(){
+//     console.log("Server has started")
+// })

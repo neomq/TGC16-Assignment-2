@@ -169,7 +169,7 @@ async function main(){
     app.get('/category_list', async function (req, res) {
         try {
             const db = getDB();
-            let categories = await db.collection('category_list').find().toArray();
+            let categories = await db.collection('category_list').find().sort({"category": 1}).toArray();
 
             res.status(200);
             res.send(categories);
@@ -185,7 +185,7 @@ async function main(){
     app.get('/craft_type_list', async function (req, res) {
         try {
             const db = getDB();
-            let craft_types = await db.collection('craft_type_list').find().toArray();
+            let craft_types = await db.collection('craft_type_list').find().sort({"craft_type": 1}).toArray();
 
             res.status(200);
             res.send(craft_types);
@@ -631,7 +631,7 @@ async function main(){
 }
 main();
 
-// Listen
+Listen
 app.listen(process.env.PORT, function(){
     console.log("Server has started")
 })

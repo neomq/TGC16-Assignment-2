@@ -28,7 +28,7 @@ async function main(){
     app.get('/projects', async function (req, res) {
         try {
             const db = getDB();
-            let projects = await db.collection('projects').find().sort({
+            let projects = await db.collection('projects').find().limit(12).sort({
                 'date_of_post': -1
             }).toArray();
 
@@ -369,7 +369,7 @@ async function main(){
                 errorCount += 1;
                 console.log("invalid photo")
             }
-            if (description.length < 5 || description.length > 125) {
+            if (description.length < 5 || description.length > 150) {
                 errorCount += 1;
                 console.log("invalid description")
             }
@@ -632,10 +632,10 @@ async function main(){
 main();
 
 // Listen
-app.listen(process.env.PORT, function(){
-    console.log("Server has started")
-})
-
-// app.listen(3000, function(){
+// app.listen(process.env.PORT, function(){
 //     console.log("Server has started")
 // })
+
+app.listen(3000, function(){
+    console.log("Server has started")
+})
